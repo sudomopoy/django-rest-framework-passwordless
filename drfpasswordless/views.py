@@ -15,6 +15,9 @@ from drfpasswordless.serializers import (
     MobileVerificationSerializer,
 )
 from drfpasswordless.services import TokenService
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +71,37 @@ class AbstractBaseObtainCallbackToken(APIView):
 
 
 class ObtainEmailCallbackToken(AbstractBaseObtainCallbackToken):
+    @swagger_auto_schema(
+        operation_description="Get email callback token for authentication",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['email'],
+            properties={
+                'email': openapi.Schema(type=openapi.TYPE_STRING, format='email', description='User email address'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Token sent successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'success': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'message': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Invalid input",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            )
+        }
+    )
     permission_classes = (AllowAny,)
     serializer_class = EmailAuthSerializer
     success_response = "A login token has been sent to your email."
@@ -85,6 +119,37 @@ class ObtainEmailCallbackToken(AbstractBaseObtainCallbackToken):
 
 
 class ObtainMobileCallbackToken(AbstractBaseObtainCallbackToken):
+    @swagger_auto_schema(
+        operation_description="Get mobile callback token for authentication",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['mobile'],
+            properties={
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile number'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Token sent successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'success': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'message': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Invalid input",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            )
+        }
+    )
     permission_classes = (AllowAny,)
     serializer_class = MobileAuthSerializer
     success_response = "We texted you a login code."
@@ -98,6 +163,37 @@ class ObtainMobileCallbackToken(AbstractBaseObtainCallbackToken):
 
 
 class ObtainEmailVerificationCallbackToken(AbstractBaseObtainCallbackToken):
+    @swagger_auto_schema(
+        operation_description="Get email verification token",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['email'],
+            properties={
+                'email': openapi.Schema(type=openapi.TYPE_STRING, format='email', description='Email to verify'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Verification token sent successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'success': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'message': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Invalid input",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            )
+        }
+    )
     permission_classes = (IsAuthenticated,)
     serializer_class = EmailVerificationSerializer
     success_response = "A verification token has been sent to your email."
@@ -117,6 +213,37 @@ class ObtainEmailVerificationCallbackToken(AbstractBaseObtainCallbackToken):
 
 
 class ObtainMobileVerificationCallbackToken(AbstractBaseObtainCallbackToken):
+    @swagger_auto_schema(
+        operation_description="Get mobile verification token",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['mobile'],
+            properties={
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='Mobile number to verify'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Verification token sent successfully",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'success': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'message': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Invalid input",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            )
+        }
+    )
     permission_classes = (IsAuthenticated,)
     serializer_class = MobileVerificationSerializer
     success_response = "We texted you a verification code."
@@ -155,6 +282,37 @@ class AbstractBaseObtainAuthToken(APIView):
 
 
 class ObtainAuthTokenFromCallbackToken(AbstractBaseObtainAuthToken):
+    @swagger_auto_schema(
+        operation_description="Exchange callback token for authentication token",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['token'],
+            properties={
+                'token': openapi.Schema(type=openapi.TYPE_STRING, description='Callback token received via email/mobile'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Authentication successful",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'token': openapi.Schema(type=openapi.TYPE_STRING, description='JWT authentication token'),
+                        'user': openapi.Schema(type=openapi.TYPE_OBJECT, description='User information')
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Invalid token",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            )
+        }
+    )
     """
     This is a duplicate of rest_framework's own ObtainAuthToken method.
     Instead, this returns an Auth Token based on our callback token and source.
@@ -164,6 +322,37 @@ class ObtainAuthTokenFromCallbackToken(AbstractBaseObtainAuthToken):
 
 
 class VerifyAliasFromCallbackToken(APIView):
+    @swagger_auto_schema(
+        operation_description="Verify email or mobile using callback token",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['token'],
+            properties={
+                'token': openapi.Schema(type=openapi.TYPE_STRING, description='Verification token received via email/mobile'),
+            }
+        ),
+        responses={
+            200: openapi.Response(
+                description="Verification successful",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'success': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'message': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            ),
+            400: openapi.Response(
+                description="Invalid token",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'error': openapi.Schema(type=openapi.TYPE_STRING)
+                    }
+                )
+            )
+        }
+    )
     """
     This verifies an alias on correct callback token entry using the same logic as auth.
     Should be refactored at some point.
