@@ -102,6 +102,8 @@ class ObtainEmailCallbackToken(AbstractBaseObtainCallbackToken):
             )
         }
     )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
     permission_classes = (AllowAny,)
     serializer_class = EmailAuthSerializer
     success_response = "A login token has been sent to your email."
@@ -150,6 +152,8 @@ class ObtainMobileCallbackToken(AbstractBaseObtainCallbackToken):
             )
         }
     )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
     permission_classes = (AllowAny,)
     serializer_class = MobileAuthSerializer
     success_response = "We texted you a login code."
@@ -194,6 +198,8 @@ class ObtainEmailVerificationCallbackToken(AbstractBaseObtainCallbackToken):
             )
         }
     )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
     permission_classes = (IsAuthenticated,)
     serializer_class = EmailVerificationSerializer
     success_response = "A verification token has been sent to your email."
@@ -244,6 +250,8 @@ class ObtainMobileVerificationCallbackToken(AbstractBaseObtainCallbackToken):
             )
         }
     )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
     permission_classes = (IsAuthenticated,)
     serializer_class = MobileVerificationSerializer
     success_response = "We texted you a verification code."
@@ -313,6 +321,8 @@ class ObtainAuthTokenFromCallbackToken(AbstractBaseObtainAuthToken):
             )
         }
     )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
     """
     This is a duplicate of rest_framework's own ObtainAuthToken method.
     Instead, this returns an Auth Token based on our callback token and source.
@@ -322,6 +332,12 @@ class ObtainAuthTokenFromCallbackToken(AbstractBaseObtainAuthToken):
 
 
 class VerifyAliasFromCallbackToken(APIView):
+    """
+    This verifies an alias on correct callback token entry using the same logic as auth.
+    Should be refactored at some point.
+    """
+    serializer_class = CallbackTokenVerificationSerializer
+    
     @swagger_auto_schema(
         operation_description="Verify email or mobile using callback token",
         request_body=openapi.Schema(
@@ -353,12 +369,6 @@ class VerifyAliasFromCallbackToken(APIView):
             )
         }
     )
-    """
-    This verifies an alias on correct callback token entry using the same logic as auth.
-    Should be refactored at some point.
-    """
-    serializer_class = CallbackTokenVerificationSerializer
-
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={"user_id": self.request.user.id})
         if serializer.is_valid(raise_exception=True):
@@ -367,3 +377,6 @@ class VerifyAliasFromCallbackToken(APIView):
             logger.error("Couldn't verify unknown user. Errors on serializer: {}".format(serializer.error_messages))
 
         return Response({"detail": "We couldn't verify this alias. Try again later."}, status.HTTP_400_BAD_REQUEST)
+    
+
+
